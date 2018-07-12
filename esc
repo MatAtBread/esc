@@ -15,7 +15,11 @@ var flags = process.argv.slice(2).reduce((a,b)=>{ if (b.startsWith("--")) a[b.sp
 var args = process.argv.slice(2).filter(s => !s.startsWith("--")) ;
 if (flags.host) {
 	config.host = flags.host ;
-	console.log("setting host to "+flags.host+" in ~/.esc.json") ;
+	console.log("saving host to",config.host,"in ~/.esc.json") ;
+}
+if (flags['settings.index']) {
+	config['settings.index'] = eval("({"+flags['settings.index']+"})") ;	
+	console.log("saving settings.index to",config['settings.index'],"in ~/.esc.json") ;
 }
 if (flags.verbose) {
 	console.log({config,flags,args}) ;

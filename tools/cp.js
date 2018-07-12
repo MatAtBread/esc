@@ -11,7 +11,7 @@ module.exports = async function(es,args,config,flags) {
 		index: args[1],
 		body:{
 			mappings:mappings ? mappings[args[0]].mappings:undefined,
-			settings: config.settings
+			settings: config['settings.index']
 		}
 	}) ;
 
