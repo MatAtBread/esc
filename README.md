@@ -18,8 +18,10 @@ Use . to separate commands
 ## Options
 `--host=<url>`
 Set the host name for all subsequent operations
+
 `--verbose`
 Generate noisy output (depends on the command(s) suuplied, if any)
+
 `--settings.index=number_of_shards:X,number_of_replicas:Y`
 Set the default values when an index is created
 
