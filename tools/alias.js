@@ -1,13 +1,12 @@
-/* ES rm - delete indices */
+/* ES alias - create an alias from 1 or more indices */
 
 module.exports = async function(es,args,config,flags) {
 	if (args.length < 2) throw module.exports.help ;
 
-	var d = await es.indices.putAlias({
+	await es.indices.putAlias({
 		name:args[0],
-		index:args[1]
+		index:args.slice(1)
 	});
-	console.log(args[0],"->",args[1])
 }
 
 module.exports.help = "Create an <alias> for an <index-pattern>".magenta ;
