@@ -9,7 +9,6 @@ var config ;
 try {
 	config = require(home+"/.esc.json") ;
 } catch (ex) {
-	console.warn("No config found. Use `esc --host=<url>` to config ES host") ;
 	config = {} ;
 }
 var flags = process.argv.slice(2).reduce((a,b)=>{ if (b.startsWith("--")) a[b.split("=")[0].slice(2)] = b.split("=")[1] || true ; return a },{}) ;
@@ -29,6 +28,10 @@ if (!args.length) {
 	return ;
 }
 
+if (!config.host) {
+	return console.warn("No config found. Use `esc --host=<url>` to config ES host") ;
+} 
+
 const es = elastic.Client({
 	hosts:[config.host]
 }) ;
@@ -46,4 +49,4 @@ const es = elastic.Client({
 		var tool = cmd.shift() ;
 		await require("./tools/"+tool)(es,cmd,config,flags) ;
 	}
-})().then(r=>console.log(r||''),x=>console.error(x.message || x)) ;
+})().then(r=>console.log(r||''),x=>console.error(flags.verbose ? x:x.message || x)) ;
