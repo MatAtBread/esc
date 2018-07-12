@@ -1,17 +1,27 @@
 /* ES ls - list the available indices */
 
 module.exports = async function(es,args,config,flags) {
-	var d = await es.cat.indices({
+	args[0] = args[0] || '*' ;
+	var isWild = args[0].indexOf("*")>=0 ;
+	
+	var d = (await es.cat.indices({
 		format: 'json',
-		index:args[0] ||'*'
-	});
-	(await es.cat.aliases({
+		index:args[0]
+	})).filter(c => isWild || c.index==args[0]);
+	var a = (await es.cat.aliases({
 		format: 'json',
-		name:args[0] ||'*'
-	})).forEach(a => d.push({
-		index: a.alias+" -> "+a.index,
-		health:'cyan',
-		alias:a
+		name:args[0]
+	})).reduce((a,b)=>{
+		if (isWild || b.alias==args[0]) {
+			a[b.alias] = a[b.alias] || { index:[] } ;
+			a[b.alias].index.push(b.index) ;
+		}
+		return a ;
+	},{}) ;
+
+	Object.keys(a).forEach(alias => d.push({
+		index: alias+" -> "+a[alias].index.join(' '),
+		health:'cyan'
 	})) ;
 	d.sort((a,b)=>a.index<b.index?-1:a.index>b.index?1:0) ;
 	if (flags.verbose)
