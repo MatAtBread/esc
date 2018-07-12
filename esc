@@ -1,0 +1,49 @@
+#!/usr/bin/env node
+
+require('colors') ;
+const fs = require("fs") ;
+const elastic = require("elasticsearch") ;
+
+const home = require('os').homedir() ;
+var config ;
+try {
+	config = require(home+"/.esc.json") ;
+} catch (ex) {
+	console.warn("No config found. Use `esc --host=<url>` to config ES host") ;
+	config = {} ;
+}
+var flags = process.argv.slice(2).reduce((a,b)=>{ if (b.startsWith("--")) a[b.split("=")[0].slice(2)] = b.split("=")[1] || true ; return a },{}) ;
+var args = process.argv.slice(2).filter(s => !s.startsWith("--")) ;
+if (flags.host) {
+	config.host = flags.host ;
+	console.log("setting host to "+flags.host+" in ~/.esc.json") ;
+}
+if (flags.verbose) {
+	console.log({config,flags,args}) ;
+}
+fs.writeFileSync(home+"/.esc.json",JSON.stringify(config)) ;
+
+if (!args.length) {
+	fs.readdirSync(__dirname+"/tools").forEach(tool => console.log(tool.split(".")[0].green,"-",require('./tools/'+tool).help || "no help available")) ;
+	console.log("Use . to separate commands") ;
+	return ;
+}
+
+const es = elastic.Client({
+	hosts:[config.host]
+}) ;
+
+(async function(){
+	while (args.length) {
+		var cmd, then = args.indexOf(".") ;
+		if (then >= 0) {
+			cmd = args.splice(0,then+1) ;
+			cmd.pop() ; // Throw away 'then'
+		} else {
+			cmd = args ;
+			args = [] ;
+		}
+		var tool = cmd.shift() ;
+		await require("./tools/"+tool)(es,cmd,config,flags) ;
+	}
+})().then(r=>console.log(r||''),x=>console.error(x.message || x)) ;
