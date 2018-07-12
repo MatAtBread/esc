@@ -37,6 +37,7 @@ if (!config.host) {
 } 
 
 const es = elastic.Client({
+	log:flags.trace?'trace':null,
 	hosts:[config.host]
 }) ;
 
