@@ -1,6 +1,6 @@
 {
 	"name": "escmd",
-	"version": "1.0.3",
+	"version": "1.0.4",
 	"description": "ElasticSearch command line",
 	"main": "esc",
 	"bin": {
