@@ -36,16 +36,22 @@ module.exports = async function(es,args,config,flags) {
 	try {
 		await es.reindex(body);
 	} catch(ex) {
+		try {
+			d = await es.indices.delete({
+				index:args[1]
+			});
+		} catch (ex) {
+			console.warn("Possibly truncated index "+args[1]+" created!") ;
+		}
 		if (ex.body) {
 			if (!ex.body.created)
 				throw ex ;
 			if (ex.body.created !== ex.body.total) {
-				d = await es.indices.delete({
-					index:args[1]
-				});
 				throw ("reindex "+args[0]+" into "+args[1]+" failed ("+ex.body.created+" of "+ex.body.total+" copied). Did you set --nomappings (not mappings)?").red ;
 			}
-		} else throw ex ;
+		} else {
+			throw ex ;
+		}
 	}
 } ;
 
