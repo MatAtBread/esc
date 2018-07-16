@@ -1,5 +1,9 @@
 /* ES cp - copy src to dest */
 
+function sleep(seconds) {
+	return new Promise(resolve => setTimeout(resolve,seconds * 1000)) ;
+}
+
 module.exports = async function(es,args,config,flags) {
 	if (args.length < 2) throw module.exports.help ;
 
@@ -21,6 +25,7 @@ module.exports = async function(es,args,config,flags) {
 	}) ;
 
 	var body = {
+		wait_for_completion: false,
 		refresh: true,
 		body:{
 			source: {
@@ -31,10 +36,20 @@ module.exports = async function(es,args,config,flags) {
 			}		
 		}
 	};
+	
 	if (m) 
 		body.body.source.remote = { host: remote } ;
+
 	try {
-		await es.reindex(body);
+		var task, reindex = await es.reindex(body);
+		do {
+			task = await es.tasks.get({ taskId: reindex.task }) ;
+			var num = ((task.task.status.created / task.task.status.total) * 1000|0)/10+"%" ;
+			num = num+"      ".slice(0,6-num.length) ;
+			process.stdout.write(" "+num+"\x1B[7D") ;
+			await sleep(1) ;
+		}  while(!task.completed) ;
+		process.stdout.write("       \x1B[7D") ;
 	} catch(ex) {
 		try {
 			d = await es.indices.delete({
