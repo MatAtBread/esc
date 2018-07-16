@@ -41,6 +41,11 @@ const es = elastic.Client({
 	hosts:[config.host]
 }) ;
 
+es.remoteClient = host => elastic.Client({
+	log:flags.trace?'trace':null,
+	hosts:[host]
+}) ;
+
 (async function(){
 	while (args.length) {
 		var cmd, then = args.indexOf(".") ;

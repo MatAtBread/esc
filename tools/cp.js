@@ -3,32 +3,42 @@
 module.exports = async function(es,args,config,flags) {
 	if (args.length < 2) throw module.exports.help ;
 
+	var m = args[0].match(/(^https?:\/\/[^/]*)\/(.*)/) ;
+	var remote = m ? m[1]:null ;
+	var esSrc = remote ? es.remoteClient(remote) : es ;
+	var src = m ? m[2]:args[0] ;
+
 	var mappings ;
 	if (!flags.nomappings)
-		mappings = await es.indices.getMapping({ index: args[0] }) ;
+		mappings = await esSrc.indices.getMapping({ index: src }) ;
 	
 	await es.indices.create({
 		index: args[1],
 		body:{
-			mappings:mappings ? mappings[args[0]].mappings:undefined,
+			mappings:mappings ? mappings[src].mappings:undefined,
 			settings: config['settings.index']
 		}
 	}) ;
 
+	var body = {
+		refresh: true,
+		body:{
+			source: {
+				index: src
+			},
+			dest: {
+				index: args[1]
+			}		
+		}
+	};
+	if (m) 
+		body.body.source.remote = { host: remote } ;
 	try {
-		await es.reindex({
-			refresh: true,
-			body:{
-				source: {
-					index: args[0]
-				},
-				dest: {
-					index: args[1]
-				}		
-			}
-		});
+		await es.reindex(body);
 	} catch(ex) {
 		if (ex.body) {
+			if (!ex.body.created)
+				throw ex ;
 			if (ex.body.created !== ex.body.total) {
 				d = await es.indices.delete({
 					index:args[1]
