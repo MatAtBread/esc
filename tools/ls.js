@@ -29,8 +29,8 @@ module.exports = async function(es,args,config,flags) {
 	else if (process.stdout.isTTY) {
 		console.log(d.map(i => i.index[i.health]).join('\n')) ;
 	} else {
-		console.log(d.map(i => i.index).join(' ')) ;
+		console.log(d.map(i => i.index).join('\n')) ;
 	}
 };
 
-module.exports.help = "list indices matching optional pattern. Use --verbose for more info on each index".magenta ;
+module.exports.help = "list indices matching optional pattern. Use\n\t"+"--verbose".cyan+" for more info on each index".magenta ;
