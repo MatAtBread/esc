@@ -20,4 +20,4 @@ module.exports = async function(es,args,config,flags) {
 	}
 } ;
 
-module.exports.help = "move <src> index to <dest> index. Use\n\t"+"--nomappings".cyan+" to copy docs only. \n\t'".magenta+"--query={}".cyan+"' to limit src docs".magenta ;
+module.exports.help = "move <src> index to <dest> index. Use\n\t".magenta+"--nomappings".cyan+" to copy docs only. \n\t'".magenta+"--query={}".cyan+"' to limit src docs".magenta ;

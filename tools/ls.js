@@ -33,4 +33,4 @@ module.exports = async function(es,args,config,flags) {
 	}
 };
 
-module.exports.help = "list indices matching optional pattern. Use\n\t"+"--verbose".cyan+" for more info on each index".magenta ;
+module.exports.help = "list indices matching optional pattern. Use\n\t".magenta+"--verbose".cyan+" for more info on each index".magenta ;

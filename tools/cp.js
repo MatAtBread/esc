@@ -30,7 +30,7 @@ module.exports = async function(es,args,config,flags) {
 		body:{
 			source: {
 				index: src,
-				query: flags.query ? JSON.parse(flags.query) : undefined
+				query: flags.query ? eval("("+flags.query+")") : undefined
 			},
 			dest: {
 				index: args[1]
@@ -67,4 +67,4 @@ module.exports = async function(es,args,config,flags) {
 	}
 } ;
 
-module.exports.help = "copy <src> index to <dest> index. Use\n\t"+"--nomappings".cyan+" to copy docs only. \n\t'".magenta+"--query={}".cyan+"' to limit src docs".magenta ;
+module.exports.help = "copy <src> index to <dest> index. Use\n\t".magenta+"--nomappings".cyan+" to copy docs only. \n\t'".magenta+"--query={}".cyan+"' to limit src docs".magenta ;
